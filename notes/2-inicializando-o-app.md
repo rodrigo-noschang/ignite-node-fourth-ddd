@@ -130,3 +130,17 @@ Com esse nosso protótipo de resposta elaborado, podemos já começar com os tes
 ```
 
 Nesse momento, o caso de uso e o teste estão extremamente simples e possivelmente (certamente) incompletos, mas já podemos criar os testes para guiar nosso desenvolvimento.
+
+**OBS**: Aqui, estamos relacionando nossas entidades da forma padrão, através dos seus *ids*, mas é importante manter em mente que isso não necessariamente vai ser traduzido para uma relação de banco de dados. Estamos apenas pensando em como referenciar as entidades, se isso for a melhor estratégia para o banco de dados, ótimo, mas não teremos isso em mente agora. 
+
+## Entidade Answer
+
+Para nossa aplicação, vamos definir também que outros alunos podem responder perguntas, não só os professores/instrutores. Porém, para deixar a coisa mais interessante, vamos definir que as ferramentas que os alunos podem utilizar nas respostas são diferentes. Por exemplo, vamos supor que os professores podem, nas respostas, enviar arquivos anexados e os alunos não. Os professores poderão marcar outros membros do fórum, os alunos não (como acontece na rocket :D), etc. 
+
+Dessa forma, vemos que o core desse caso de uso é o mesmo para professores e alunos: ambos podem responder perguntas. Porém, como as diferentes entidades exigem regras de negócio diferentes para uma mesma ação, vale a pena considerar a possibilidade de separar esse caso de uso em dois: resposta por professor e reposta por aluno. Isso gera um pouco de código repetido/parecido, o que não é ideal, porém, conforme as verificações/regras de negócio para cada entidade crescem e mudam, fica extremamente complexo e incompreensível usarmos o mesmo caso de uso para os dois. 
+
+Nesse caso, vale a pena sacrificar um pouco da redundância do código, para se ter uma melhor organização e entendimento do código. 
+
+Outro motivo para não reaproveitarmos a entidade seria o fato de que precisaríamos de um nome "neutro" que caracterizasse os dois tipos de usuários que postam uma resposta. E isso fere um pouco o "princípio" da linguagem ubíqua pois deixaríamos de ter professores respondendo alunos, ou alunos respondendo alunos e passaríamos a ter usuários respondendo usuários, e isso já não se enquadra nos fundamentos do DDD. 
+
+-- Parte 3 --

@@ -17,3 +17,4 @@ Quando o desenvolvedor e os domain experts conseguem se referir a mesma entidade
 ## Estrutura do DDD
 Quando desenvolvemos seguindo do DDD, temos que pensar na aplicação no jeito mais limpo e desacoplado o possível. A nossa camada principal/mais interna será chamada de domínio e ela precisa existir mesmo se isolada de qualquer contexto externo, APIs, camadas de persistência, assim por diante. Deve ser possível retirar o código dessa aplicação, colocar em uma outra aplicação e a coisa deve seguir funcionando (se as linguagens forem as mesmas).
 
+-- Parte 2 --
