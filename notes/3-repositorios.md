@@ -59,3 +59,5 @@ Com dito acima, precisamos passar um repositório das reposta para o `new Answer
 ```
 
 Este repositório (que na verdade é apenas um objeto) não faz nada, mas cumpre com os requisitos do teste e do TypeScript. Agora os testes vão rodar certinho, e já temos uma dinâmica de armazenamento de respostas, mesmo que não implementada. 
+
+--- Parte 4 ---
