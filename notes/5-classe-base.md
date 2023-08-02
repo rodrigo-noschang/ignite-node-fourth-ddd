@@ -181,3 +181,120 @@ E agora, na nossa classe Entity, vamos trocar a tipagem do id e também sua cria
 ```
 
 Essas implementações até agora são da prática e preferência do Diegão, o que se tem como definição do DDD é essa separação de entidades, value objects, assim por diante. A forma como isso é feito fica a preferência do freguês.
+
+## Optional
+
+Em algumas entidades, como a Question e Answer, acabamos inserindo propriedades **createdAt** e **updatedAt**. É interessante que a propriedade *createdAt* seja inserida automaticamente na nova instância dessas classes, sem necessidade de ser passada manualmente na criação. Porém, como ela é uma propriedade obrigatória para instâncias dessa classe, e como nas entidades não estamos mais acessando o constructor delas (já que tudo está sendo feito pelo super, que invoca o constructor da Entity), é impossível fazer esse processo pelos meios tradicionais.
+
+Para tentar burlar isso, vamos criar dentro da entidade Question, por exemplo, um método estático `create`, que vai pegar a data atual e passar ela na criação de uma nova instância Question:
+
+```ts
+    export class Question extends Entity<QuestionProps> {
+
+        static create(props: QuestionProps, id?: UniqueEntityId) {
+            const question = new Question({            
+                ...props,
+                createdAt: new Date()
+            }, id);
+
+            return question;
+        }
+    }
+```
+
+Dessa forma, tiramos a criação da data do método construtor mas, se formos tentar criar uma question por esse método:
+
+```ts
+    const question = Question.create({
+
+    })
+```
+
+e pedirmos a ajuda do auto complete (Ctrl + Space), ele ainda vai citar o createdAt como uma propriedade obrigatória, nos forçando a inserí-la no momento da criação. Para isso, vamos criar um tipo genérico **Optional** que nos permite reaproveitar uma tipagem, tornando alguns atributos dela opcionais apenas em um alguns contextos ("momentaneamente"):
+
+```ts
+    /**
+     * Make some property optional on type
+     *
+     * @example
+     * ```typescript
+     * type Post {
+     *  id: string;
+     *  name: string;
+     *  email: string;
+     * }
+     *
+     * Optional<Post, 'id' | 'email'>
+     * ```
+     **/
+
+    export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>
+```
+
+Como isso vai nos ajudar? Esse método vai nos permitir tornar o createdAt uma propriedade opcional apenas no momento da **criação de uma instância de Question**, mas ele vai continuar sendo obrigatório para a instância em si:
+
+Vamos fazer a seguinte alteração no nosso método create:
+
+```ts
+    export class Question extends Entity<QuestionProps> {
+
+        static create(props: Optional<QuestionProps, 'createdAt'>, id?: UniqueEntityId) {
+            const question = new Question({
+                ...props,
+                createdAt: new Date()
+            }, id);
+
+            return question;
+        }
+    }
+```
+
+A alteração que nos interessa é:
+
+```ts
+    props: Optional<QuestionProps, 'createdAt'>
+```
+
+Isso basicamente torna a propriedade createdAt do QuestionProps opcional, mas somente no momento da "criação da instância", que na verdade é o método que chama a criação da instância de fato. E agora, no momento da criação de uma instância de question, o auto complete já nos diz que o createdAt é opcional, mas dentro da instância, ela continua sendo obrigatória.
+
+Vamos também implementar esse sistema de **create** em todas as instâncias, mas no instructor e student, como n tem nada pra ser criado automaticamente, não vai precisar do Optional.
+
+E agora, no nosso `AnswerQuestionUseCase`, precisamos mudar a forma como a resposta é criada. No momento ele está assim:
+
+```ts
+    export class AnswerQuestionUseCase {
+        constructor(private answersRepository: AnswersRepository) { }
+
+        async execute({ instructorId, questionId, content }: AnswerQuestionUseCaseRequest) {
+            const answer = new Answer({
+                questionId,
+                content,
+                authorId: instructorId
+            });
+
+            await this.answersRepository.create(answer);
+
+            return answer;
+        }
+    }
+```
+
+Problemas: o answer é criado pelo método estático create e os id's não podem ser simples strings, precisam ser instâncias da classe `UniqueEntityId`:
+
+```ts
+    export class AnswerQuestionUseCase {
+        constructor(private answersRepository: AnswersRepository) { }
+
+        async execute({ instructorId, questionId, content }: AnswerQuestionUseCaseRequest) {
+            const answer = Answer.create({
+                content,
+                authorId: new UniqueEntityId(instructorId),
+                questionId: new UniqueEntityId(questionId),
+            });
+
+            await this.answersRepository.create(answer);
+
+            return answer;
+        }
+    }
+```
