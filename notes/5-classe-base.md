@@ -298,3 +298,5 @@ Problemas: o answer é criado pelo método estático create e os id's não podem
         }
     }
 ```
+
+--- Parte (6) ---

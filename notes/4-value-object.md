@@ -130,3 +130,5 @@ Podemos também já criar os testes para o slug:
         expect(slug.value).toEqual('example-question-title');
     })
 ```
+
+--- Parte (5) ---
